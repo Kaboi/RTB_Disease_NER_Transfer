@@ -325,9 +325,9 @@ def main():
 def _mp_fn(index):
     # For xla_spawn (TPUs)
     main()
+    wandb.finish()
 
 
 if __name__ == "__main__":
     main()
-
-wandb.finish()
+    wandb.finish()

@@ -183,7 +183,6 @@ heads	O
 ,	O
 5	O
 -	O
-
 12x3	O
 -	O
 5	O
@@ -3489,7 +3488,6 @@ release	O
 hyaline	O
 ,	O
 smooth	O
-
 ;	O
 oogonia	O
 globose	O
@@ -12975,7 +12973,6 @@ test	O
 External	O
 Link	O
  	O
-
 https://soranews24.com/2021/11/11/pandemic-hits-sweet-potatoes-in-japan-prices-rise-and-social-potato-distancing-advised/	O
  	O
 ©	O
@@ -29233,7 +29230,6 @@ synthase	O
 F1	O
 subunit	O
 α	O
-
 gene	O
 (	O
 atp1	O

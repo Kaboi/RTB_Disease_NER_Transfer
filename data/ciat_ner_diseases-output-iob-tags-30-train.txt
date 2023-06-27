@@ -1050,7 +1050,6 @@ and	O
 28	O
 C.	B-PATHOGEN
  	I-PATHOGEN
-
 gloeosporioides	I-PATHOGEN
 species	I-PATHOGEN
 complex	I-PATHOGEN
@@ -2109,7 +2108,6 @@ phosphate	O
 dehydrogenase	O
 (	O
 GAPDH	O
-
 )	O
 genes	O
 were	O
@@ -7107,7 +7105,6 @@ KU887094	O
 ,	O
 EF1	O
 :	O
-
 KU886972	O
 ,	O
 Bt	O
@@ -8749,7 +8746,6 @@ old	I-DATE
 plants	O
 with	O
 developed	O
-
 3rd	O
 true	O
 leaf	B-PLANT_PART
@@ -10242,7 +10238,6 @@ Scientia	O
 Horticulturae	O
 ,	O
 Vol	O
-
 .	O
 
 251	O
@@ -14818,7 +14813,6 @@ EF1	O
 -	O
 986R	O
 ,	O
-
 OP588300	O
 -	O
 13	O
@@ -36110,7 +36104,6 @@ EF1	O
 -	O
 2218R	O
 and	O
-
 5F2/7cR	O
 ,	O
 respectively	O
@@ -48024,7 +48017,6 @@ MN507110	O
 and	O
 F.	B-PATHOGEN
 proliferatum	I-PATHOGEN
-
 (	O
 MK952799	O
 )	O
@@ -58892,7 +58884,6 @@ GAP2	O
 -	O
 IG	O
 )	O
-
 intergenic	O
 spacers	O
 were	O
@@ -79900,7 +79891,6 @@ tropical	O
 soils	O
 ;	O
  	O
-
 Disseminate	O
 information	O
 and	O
@@ -84115,7 +84105,6 @@ IPO:4132	O
 (	O
 CP059956.1	O
 )	O
-
 ,	O
 and	O
 BL-2	O
@@ -84360,7 +84349,6 @@ The	O
 and	O
 ME175	O
 inoculated	O
-
 tubers	B-PLANT_PART
 showed	O
 soft	B-SYMPTOM
@@ -85835,7 +85823,6 @@ Pradesh	I-GPE
 51'32.1"N;81	I-LOC
 °	I-LOC
 46'08.4"E	I-LOC
-
 )	O
 ,	O
 did	O
@@ -87463,7 +87450,6 @@ trpB	O
 (	O
 MZ343170	O
 and	O
-
 MZ343171	O
 )	O
 .	O
@@ -95180,7 +95166,6 @@ with	O
 ,	O
 and	O
 100	O
-
 μg	O
 of	O
 azoxystrobin	O
@@ -98447,7 +98432,6 @@ L.	I-CROP
 fruit	B-PLANT_PART
 against	O
 banana	B-DISEASE
-
 anthracnose	I-DISEASE
 '	I-DISEASE
 ,	O
@@ -117792,7 +117776,6 @@ Ma	O
 et	O
 al	O
 .	O
-
 ,	O
 
 2007	B-DATE
@@ -136453,7 +136436,6 @@ no	O
 amplification	O
 on	O
 four	O
-
 haplotype	O
 A	O
 strains	O
@@ -136566,7 +136548,6 @@ differentiate	O
 haplotypes	O
 A	O
 and	O
-
 B.	O
 We	O
 highly	O
@@ -148745,7 +148726,6 @@ sequence	O
 similarity	O
 to	O
 a	O
-
 reference	O
 strain	O
 (	O
@@ -154119,7 +154099,6 @@ Recommendation	O
 a	O
 Disinfecting	O
 of	O
-
 tools	O
 when	O
 moving	O

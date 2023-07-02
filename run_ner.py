@@ -42,6 +42,8 @@ from transformers import (
 )
 from transformers.trainer_utils import is_main_process
 
+from dataclasses import asdict
+
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +118,11 @@ def main():
     # log training to wandb
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     run_name = f"{model_args.model_name_or_path}-{timestamp}"
-    wandb.init(name=run_name)
+
+    wandb_config = {**asdict(model_args), **asdict(data_args), **asdict(training_args)}
+
+    wandb.init(project='RTB-NER-Transfer-Learning', name=run_name, tags=['BERT', 'train'],
+               config=wandb_config)
 
     if (
         os.path.exists(training_args.output_dir)
@@ -325,9 +331,9 @@ def main():
 def _mp_fn(index):
     # For xla_spawn (TPUs)
     main()
-    wandb.finish()
 
 
 if __name__ == "__main__":
     main()
-    wandb.finish()
+
+wandb.finish()

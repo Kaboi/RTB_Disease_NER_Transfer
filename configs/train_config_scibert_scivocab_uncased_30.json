@@ -1,0 +1,17 @@
+{
+    "model_name_or_path": "allenai/scibert_scivocab_uncased",
+    "labels": "./data_30/labels.txt",
+    "data_dir": "./data_30/scibert_scivocab_uncased",
+    "output_dir": "./output/scibert_scivocab_uncased",
+    "max_seq_length": 456,
+    "num_train_epochs": 3,
+    "per_device_train_batch_size": 32,
+    "save_steps": 500,
+    "logging_steps": 500,
+    "seed": 3,
+    "report_to": "wandb",
+    "do_train": true,
+    "do_eval": true,
+    "do_predict": true,
+    "overwrite_output_dir": true
+}

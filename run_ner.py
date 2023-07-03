@@ -31,6 +31,7 @@ from torch import nn
 from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
 import wandb
+import itertools
 
 import transformers
 from transformers import (
@@ -249,6 +250,42 @@ def main():
 
         return preds_list, out_label_list
 
+    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+        """
+        This function prints and plots the confusion matrix.
+        Normalization can be applied by setting `normalize=True`.
+        """
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            print("Normalized confusion matrix")
+        else:
+            print('Confusion matrix, without normalization')
+
+        print(cm)
+
+        fig, ax = plt.subplots(figsize=(14, 12))  # Adjust the figsize parameter
+
+        im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+        ax.set_title(title)
+        plt.colorbar(im, ax=ax)  # Use the mappable object 'im' for colorbar creation
+        tick_marks = np.arange(len(classes))
+        ax.set_xticks(tick_marks)
+        ax.set_yticks(tick_marks)
+        ax.set_xticklabels(classes, rotation=60)
+        ax.set_yticklabels(classes)
+
+        fmt = '.2f' if normalize else 'd'
+        thresh = cm.max() / 2.
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            ax.text(j, i, format(cm[i, j], fmt),
+                    horizontalalignment="center",
+                    color="white" if cm[i, j] > thresh else "black")
+
+        ax.set_ylabel('True label')
+        ax.set_xlabel('Predicted label')
+
+        return fig  # Return the figure object
+
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
@@ -261,18 +298,18 @@ def main():
         wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
 
         report = classification_report(out_label_list, preds_list, digits=4)
-        # Create a custom table with one cell containing the classification report
-        table = wandb.Table(data=[[report]], columns=["Classification Report"])
-        # Log the table to Weights and Biases
-        wandb.log({"classification_report": table})
-        # Computing additional metrics and the confusion matrix
+        logger.info("*** Classification report ***")
+        logger.info("\n%s", report)
 
         # Calculating Non-O accuracy
         non_o_true_labels = []
         non_o_pred_labels = []
         for true_labels, pred_labels in zip(out_label_list, preds_list):
-            non_o_true_labels.extend([label for label in true_labels if label != 'O'])
-            non_o_pred_labels.extend([label for label in pred_labels if label != 'O'])
+            for true_label, pred_label in zip(true_labels, pred_labels):
+                # Only include instances where the true label is not 'O'
+                if true_label != 'O':
+                    non_o_true_labels.append(true_label)
+                    non_o_pred_labels.append(pred_label)
 
         non_o_accuracy = accuracy_score(non_o_true_labels, non_o_pred_labels)
 
@@ -287,11 +324,8 @@ def main():
         cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=labels)
 
         # Plot confusion matrix
-        plt.figure(figsize=(14, 12))
-        sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=labels, yticklabels=labels)
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        plt.title('Confusion Matrix')
+        # Call the plot_confusion_matrix function here and pass the computed confusion matrix
+        fig = plot_confusion_matrix(cm, classes=labels, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues)
 
         # Log metrics and confusion matrix to wandb
         wandb.log({
@@ -299,7 +333,7 @@ def main():
             "precision": precision,
             "recall": recall,
             "f1": f1,
-            "confusion_matrix": wandb.Image(plt)
+            "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
         })
 
         # TODO add non-O metrics

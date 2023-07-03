@@ -261,7 +261,7 @@ def main():
         else:
             print('Confusion matrix, without normalization')
 
-        print(cm)
+        # print(cm)
 
         fig, ax = plt.subplots(figsize=(14, 12))  # Adjust the figsize parameter
 
@@ -290,16 +290,12 @@ def main():
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
         accuracy = accuracy_score(out_label_list, preds_list)
-        precision = precision_score(out_label_list, preds_list)
-        recall = recall_score(out_label_list, preds_list)
-        f1 = f1_score(out_label_list, preds_list)
+        precision = precision_score(out_label_list, preds_list, average='micro')
+        recall = recall_score(out_label_list, preds_list, average='micro')
+        f1 = f1_score(out_label_list, preds_list, average='micro')
 
-        report_data = classification_report(out_label_list, preds_list, digits=4, output_dict=True)
-        wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
-
-        report = classification_report(out_label_list, preds_list, digits=4)
-        logger.info("*** Classification report ***")
-        logger.info("\n%s", report)
+        # Classification report for macro-averaged per-class metrics
+        report = classification_report(out_label_list, preds_list, output_dict=True)
 
         # Calculating Non-O accuracy
         non_o_true_labels = []
@@ -313,37 +309,13 @@ def main():
 
         non_o_accuracy = accuracy_score(non_o_true_labels, non_o_pred_labels)
 
-        # Log non-O accuracy to wandb
-        wandb.log({"non_o_accuracy": non_o_accuracy})
-
-        # Flattening the lists for confusion matrix
-        flat_true_labels = [label for sublist in out_label_list for label in sublist]
-        flat_pred_labels = [label for sublist in preds_list for label in sublist]
-
-        # Compute confusion matrix
-        cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=labels)
-
-        # Plot confusion matrix
-        # Call the plot_confusion_matrix function here and pass the computed confusion matrix
-        fig = plot_confusion_matrix(cm, classes=labels, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues)
-
-        # Log metrics and confusion matrix to wandb
-        wandb.log({
-            "accuracy": accuracy,
+        return {
+            "accuracy": accuracy,  # Changed from "accuracy_score" to "accuracy"
             "precision": precision,
             "recall": recall,
             "f1": f1,
             "non_O_accuracy": non_o_accuracy,
-            "non_O_accuracy_percentage": non_o_accuracy_percentage,
-            "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
-        })
-
-        return {
-            "accuracy_score": accuracy_score(out_label_list, preds_list),
-            "precision": precision_score(out_label_list, preds_list),
-            "recall": recall_score(out_label_list, preds_list),
-            "f1": f1_score(out_label_list, preds_list),
-            "non_O_accuracy": non_o_accuracy
+            "per_class_metrics": report
         }
 
     # Data collator
@@ -403,19 +375,70 @@ def main():
         predictions, label_ids, metrics = trainer.predict(test_dataset)
         preds_list, _ = align_predictions(predictions, label_ids)
 
-        output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
         if trainer.is_world_process_zero():
+            # Write test results to file
+            output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
             with open(output_test_results_file, "w") as writer:
                 for key, value in metrics.items():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
 
-        # Save predictions
-        output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
-        if trainer.is_world_process_zero():
+            # Save predictions
+            output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
             with open(output_test_predictions_file, "w") as writer:
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list)
+
+            # Flattening the lists for confusion matrix
+            flat_true_labels = [label for sublist in label_ids for label in sublist]
+            flat_pred_labels = [label for sublist in preds_list for label in sublist]
+
+            report = classification_report(flat_true_labels, flat_pred_labels, digits=4)
+            logger.info("*** Classification report ***")
+            logger.info("\n%s", report)
+            table = wandb.Table(data=[[report]], columns=["Classification Report"])
+            # Log the table to Weights and Biases
+            wandb.log({"classification_report": table})
+
+            # Compute detailed classification report
+            report_data = metrics['per_class_metrics']
+
+            # Log the classification report data to W&B
+            wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
+
+            wandb.log({
+                "accuracy": metrics.get("accuracy", None),
+                "precision": metrics.get("precision", None),
+                "recall": metrics.get("recall", None),
+                "f1": metrics.get("f1", None),
+                "non_O_accuracy": metrics.get("non_O_accuracy", None),
+            })
+            # Custom order
+            custom_order = ['B-CROP', 'I-CROP', 'B-PLANT_PART', 'I-PLANT_PART', 'B-PATHOGEN', 'I-PATHOGEN',
+                            'B-DISEASE', 'I-DISEASE', 'B-SYMPTOM', 'I-SYMPTOM', 'B-GPE', 'I-GPE',
+                            'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
+
+            # Compute ordered confusion matrix using the custom order
+            ordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=custom_order)
+
+            # Compute unordered confusion matrix
+            unordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels)
+
+            # Plot ordered confusion matrix
+            fig1 = plot_confusion_matrix(ordered_cm, classes=custom_order, normalize=True,
+                                         title='Ordered Confusion Matrix',
+                                         cmap=plt.cm.Blues)
+
+            # Plot unordered confusion matrix
+            fig2 = plot_confusion_matrix(unordered_cm, classes=labels, normalize=True,
+                                         title='Unordered Confusion Matrix',
+                                         cmap=plt.cm.Blues)
+
+            # Log confusion matrices to wandb
+            wandb.log({
+                "ordered_confusion_matrix": [wandb.Image(fig1, caption="Ordered Confusion Matrix")],
+                "unordered_confusion_matrix": [wandb.Image(fig2, caption="Unordered Confusion Matrix")]
+            })
 
     return results
 

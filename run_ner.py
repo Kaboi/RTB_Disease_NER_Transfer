@@ -22,7 +22,11 @@ from importlib import import_module
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from seqeval.metrics import accuracy_score, f1_score, precision_score, recall_score
+import pandas as pd
+from seqeval.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 from torch import nn
 from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
@@ -247,6 +251,42 @@ def main():
 
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
+
+        report = classification_report(out_label_list, preds_list, digits=4)
+
+        wandb.log({"classification_report": wandb.Table(dataframe=pd.DataFrame(report))})
+        wandb.log({"alternate classification_report": report})
+
+        # Computing additional metrics and the confusion matrix
+        accuracy = accuracy_score(out_label_list, preds_list)
+        precision = precision_score(out_label_list, preds_list)
+        recall = recall_score(out_label_list, preds_list)
+        f1 = f1_score(out_label_list, preds_list)
+
+        # Flattening the lists for confusion matrix
+        flat_true_labels = [label for sublist in out_label_list for label in sublist]
+        flat_pred_labels = [label for sublist in preds_list for label in sublist]
+
+        # Compute confusion matrix
+        cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=labels)
+
+        # Plot confusion matrix
+        plt.figure(figsize=(14, 12))
+        sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=labels, yticklabels=labels)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        plt.title('Confusion Matrix')
+
+        # Log metrics and confusion matrix to wandb
+        wandb.log({
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "confusion_matrix": wandb.Image(plt)
+        })
+
+        #TODO add non-O metrics
         return {
             "accuracy_score": accuracy_score(out_label_list, preds_list),
             "precision": precision_score(out_label_list, preds_list),

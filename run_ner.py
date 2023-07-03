@@ -252,10 +252,12 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
+        report_data = classification_report(out_label_list, preds_list, digits=4, output_dict=True)
         report = classification_report(out_label_list, preds_list, digits=4)
 
+        wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
         wandb.log({"classification_report": wandb.Table(dataframe=pd.DataFrame(report))})
-        wandb.log({"alternate classification_report": report})
+
 
         # Computing additional metrics and the confusion matrix
         accuracy = accuracy_score(out_label_list, preds_list)

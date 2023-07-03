@@ -333,16 +333,17 @@ def main():
             "precision": precision,
             "recall": recall,
             "f1": f1,
+            "non_O_accuracy": non_o_accuracy,
+            "non_O_accuracy_percentage": non_o_accuracy_percentage,
             "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
         })
 
-        # TODO add non-O metrics
         return {
             "accuracy_score": accuracy_score(out_label_list, preds_list),
             "precision": precision_score(out_label_list, preds_list),
             "recall": recall_score(out_label_list, preds_list),
             "f1": f1_score(out_label_list, preds_list),
-            "non_O_accuracy": non_o_accuracy,
+            "non_O_accuracy": non_o_accuracy
         }
 
     # Data collator

@@ -252,17 +252,32 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
-        report_data = classification_report(out_label_list, preds_list, digits=4, output_dict=True)
-        report = classification_report(out_label_list, preds_list, digits=4)
-
-        wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
-        wandb.log({"classification_report": report})
-
-        # Computing additional metrics and the confusion matrix
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list)
         recall = recall_score(out_label_list, preds_list)
         f1 = f1_score(out_label_list, preds_list)
+
+        report_data = classification_report(out_label_list, preds_list, digits=4, output_dict=True)
+        wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
+
+        report = classification_report(out_label_list, preds_list, digits=4)
+        # Create a custom table with one cell containing the classification report
+        table = wandb.Table(data=[[report]], columns=["Classification Report"])
+        # Log the table to Weights and Biases
+        wandb.log({"classification_report": table})
+        # Computing additional metrics and the confusion matrix
+
+        # Calculating Non-O accuracy
+        non_o_true_labels = []
+        non_o_pred_labels = []
+        for true_labels, pred_labels in zip(out_label_list, preds_list):
+            non_o_true_labels.extend([label for label in true_labels if label != 'O'])
+            non_o_pred_labels.extend([label for label in pred_labels if label != 'O'])
+
+        non_o_accuracy = accuracy_score(non_o_true_labels, non_o_pred_labels)
+
+        # Log non-O accuracy to wandb
+        wandb.log({"non_o_accuracy": non_o_accuracy})
 
         # Flattening the lists for confusion matrix
         flat_true_labels = [label for sublist in out_label_list for label in sublist]
@@ -287,12 +302,13 @@ def main():
             "confusion_matrix": wandb.Image(plt)
         })
 
-        #TODO add non-O metrics
+        # TODO add non-O metrics
         return {
             "accuracy_score": accuracy_score(out_label_list, preds_list),
             "precision": precision_score(out_label_list, preds_list),
             "recall": recall_score(out_label_list, preds_list),
             "f1": f1_score(out_label_list, preds_list),
+            "non_O_accuracy": non_o_accuracy,
         }
 
     # Data collator

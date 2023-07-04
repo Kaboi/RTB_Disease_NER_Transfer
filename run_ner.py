@@ -378,7 +378,7 @@ def main():
         )
 
         predictions, label_ids, metrics = trainer.predict(test_dataset)
-        preds_list, _ = align_predictions(predictions, label_ids)
+        preds_list, out_label_list = align_predictions(predictions, label_ids)
 
         if trainer.is_world_process_zero():
             # Write test results to file
@@ -408,7 +408,7 @@ def main():
                             'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
 
             # Flattening the lists for confusion matrix
-            flat_true_labels = [label for sublist in label_ids for label in sublist]
+            flat_true_labels = [label for sublist in out_label_list for label in sublist]
             flat_pred_labels = [label for sublist in preds_list for label in sublist]
 
             # Compute ordered confusion matrix using the custom order

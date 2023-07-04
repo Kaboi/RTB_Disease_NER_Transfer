@@ -295,7 +295,13 @@ def main():
         f1 = f1_score(out_label_list, preds_list, average='micro')
 
         # Classification report for macro-averaged per-class metrics
-        report = classification_report(out_label_list, preds_list, output_dict=True)
+        report_data = classification_report(out_label_list, preds_list, digits=4, output_dict=True)
+        wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
+
+        report = classification_report(out_label_list, preds_list, digits=4)
+        logger.info("*** Classification report ***")
+        logger.info("\n%s", report)
+
 
         # Calculating Non-O accuracy
         non_o_true_labels = []
@@ -314,8 +320,7 @@ def main():
             "precision": precision,
             "recall": recall,
             "f1": f1,
-            "non_O_accuracy": non_o_accuracy,
-            "per_class_metrics": report
+            "non_O_accuracy": non_o_accuracy
         }
 
     # Data collator
@@ -389,22 +394,6 @@ def main():
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list)
 
-            # Flattening the lists for confusion matrix
-            flat_true_labels = [label for sublist in label_ids for label in sublist]
-            flat_pred_labels = [label for sublist in preds_list for label in sublist]
-
-            report = classification_report(flat_true_labels, flat_pred_labels, digits=4)
-            logger.info("*** Classification report ***")
-            logger.info("\n%s", report)
-            table = wandb.Table(data=[[report]], columns=["Classification Report"])
-            # Log the table to Weights and Biases
-            wandb.log({"classification_report": table})
-
-            # Compute detailed classification report
-            report_data = metrics['per_class_metrics']
-
-            # Log the classification report data to W&B
-            wandb.log({"classification_report_data": wandb.Table(dataframe=pd.DataFrame(report_data).transpose())})
 
             wandb.log({
                 "accuracy": metrics.get("accuracy", None),
@@ -417,6 +406,10 @@ def main():
             custom_order = ['B-CROP', 'I-CROP', 'B-PLANT_PART', 'I-PLANT_PART', 'B-PATHOGEN', 'I-PATHOGEN',
                             'B-DISEASE', 'I-DISEASE', 'B-SYMPTOM', 'I-SYMPTOM', 'B-GPE', 'I-GPE',
                             'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
+
+            # Flattening the lists for confusion matrix
+            flat_true_labels = [label for sublist in label_ids for label in sublist]
+            flat_pred_labels = [label for sublist in preds_list for label in sublist]
 
             # Compute ordered confusion matrix using the custom order
             ordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=custom_order)

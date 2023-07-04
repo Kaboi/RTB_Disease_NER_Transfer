@@ -248,6 +248,9 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
+
+        print("preds_list: ", preds_list)
+        print("out_label_list: ", out_label_list)
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -378,6 +381,10 @@ def main():
         )
 
         predicted_outputs = trainer.predict(test_dataset)
+        print("Predicted outputs predictions:")
+        print(predicted_outputs.predictions)
+        print("Predicted outputs label ids:")
+        print(predicted_outputs.label_ids)
         metrics = predicted_outputs.metrics
         preds_list, out_label_list = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
 

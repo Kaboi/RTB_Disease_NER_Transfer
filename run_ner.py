@@ -43,7 +43,7 @@ from transformers import (
     HfArgumentParser,
     Trainer,
     TrainingArguments,
-    set_seed,
+    set_seed
 )
 from transformers.trainer_utils import is_main_process
 
@@ -377,8 +377,9 @@ def main():
             mode=Split.test,
         )
 
-        predictions, label_ids, metrics = trainer.predict(test_dataset)
-        preds_list, out_label_list = align_predictions(predictions, label_ids)
+        predicted_outputs = trainer.predict(test_dataset)
+        metrics = predicted_outputs.metrics
+        preds_list, out_label_list = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
 
         if trainer.is_world_process_zero():
             # Write test results to file

@@ -288,8 +288,6 @@ def main():
 
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
-        logging.info(f'DEBUGL - preds_list: {preds_list}')
-        logging.info(f'DEBUGL - out_label_list: {out_label_list}')
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')

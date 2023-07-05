@@ -290,6 +290,8 @@ def main():
 
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
+        logging.info(f'DEBUGL - preds_list: {preds_list}')
+        logging.info(f'DEBUGL - out_label_list: {out_label_list}')
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')
@@ -400,10 +402,12 @@ def main():
         )
 
         predicted_outputs = trainer.predict(test_dataset)
-
-        logger.info("Predicted outputs predictions:")
+        logging.debug(f'DEBUGL - test_dataset: {test_dataset}')
+        logging.info(f'DEBUGL - test_dataset: {test_dataset}')
+        logging.debug(f'DEBUGL - predicted_outputs: {predicted_outputs}')
+        logger.info("DEBUGL - Predicted outputs predictions:")
         logger.info(predicted_outputs.predictions)
-        logger.info("Predicted outputs label ids:")
+        logger.info("DEBUGL - Predicted outputs label ids:")
         logger.info(predicted_outputs.label_ids)
         metrics = predicted_outputs.metrics
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
@@ -425,10 +429,10 @@ def main():
 
 
             wandb.log({
-                "Accuracy": metrics.get("accuracy", None) * 100,
-                "Precision": metrics.get("precision", None) * 100,
-                "Recall": metrics.get("recall", None) * 100,
-                "F1": metrics.get("f1", None) * 100,
+                "Accuracy": metrics.get("accuracy", None),
+                "Precision": metrics.get("precision", None),
+                "Recall": metrics.get("recall", None),
+                "F1": metrics.get("f1", None),
                 "Non_O_accuracy": metrics.get("non_O_accuracy", None),
             })
             # Custom order

@@ -344,7 +344,12 @@ def main():
         }
 
     # Data collator
-    data_collator = DataCollatorWithPadding(tokenizer, pad_to_multiple_of=8) if training_args.fp16 else None
+    # data_collator = DataCollatorWithPadding(tokenizer, pad_to_multiple_of=8) if training_args.fp16 else None
+    data_collator = DataCollatorWithPadding(
+        tokenizer,
+        padding=True,
+        max_length=data_args.max_seq_length
+    ) if training_args.fp16 else None
 
     # Initialize our Trainer
     trainer = Trainer(

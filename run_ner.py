@@ -248,8 +248,8 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
-        logger.info("preds_list: %s", preds_list)
-        logger.info("out_label_list: %s", out_label_list)
+        logger.info("DEBUG - ALIGN preds_list: %s", preds_list)
+        logger.info("DEBUG - ALIGN out_label_list: %s", out_label_list)
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -402,15 +402,16 @@ def main():
         )
 
         predicted_outputs = trainer.predict(test_dataset)
-        logging.debug(f'DEBUGL - test_dataset: {test_dataset}')
-        logging.info(f'DEBUGL - test_dataset: {test_dataset}')
-        logging.debug(f'DEBUGL - predicted_outputs: {predicted_outputs}')
-        logger.info("DEBUGL - Predicted outputs predictions:")
+        logging.info(f'DEBUGL DOPREDICT - test_dataset: {test_dataset}')
+        logger.info("DEBUGL DOPREDICT - Predicted outputs predictions:")
         logger.info(predicted_outputs.predictions)
-        logger.info("DEBUGL - Predicted outputs label ids:")
+        logger.info("DEBUGL DOPREDICT - Predicted outputs label ids:")
         logger.info(predicted_outputs.label_ids)
         metrics = predicted_outputs.metrics
+        logger.info(f'DEBUGL DOPREDICT - metrics: {metrics}')
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
+        logger.info(f'DEBUGL DOPREDICT - preds_list_out: {preds_list_out}')
+        logger.info(f'DEBUGL DOPREDICT - out_label_list_out: {out_label_list_out}')
 
         if trainer.is_world_process_zero():
 

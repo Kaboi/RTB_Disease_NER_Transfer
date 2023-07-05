@@ -14,5 +14,6 @@
     "do_eval": true,
     "do_predict": true,
     "overwrite_output_dir": true,
-    "overwrite_cache": true
+    "overwrite_cache": true,
+    "fp16": true
 }

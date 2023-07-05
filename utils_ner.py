@@ -92,6 +92,7 @@ class TokenClassificationTask:
         pad_token_label_id=-100,
         sequence_a_segment_id=0,
         mask_padding_with_zero=True,
+        padding=True,
     ) -> List[InputFeatures]:
         """Loads a data file into a list of `InputFeatures`
         `cls_token_at_end` define the location of the CLS token:
@@ -195,12 +196,24 @@ class TokenClassificationTask:
 
             if "token_type_ids" not in tokenizer.model_input_names:
                 segment_ids = None
-
-            features.append(
-                InputFeatures(
-                    input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, label_ids=label_ids
+            # Conditionally create different types of feature objects
+            if padding:
+                # Create dictionary representation if fp16 is set to True
+                features_dict = {
+                    'input_ids': input_ids,
+                    'attention_mask': input_mask,
+                    'token_type_ids': segment_ids,
+                    'label_ids': label_ids
+                }
+                features.append(features_dict)
+            else:
+                # Else, use the original InputFeatures object
+                features.append(
+                    InputFeatures(
+                        input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, label_ids=label_ids
+                    )
                 )
-            )
+
         return features
 
 

@@ -248,9 +248,8 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
-
-        print("preds_list: ", preds_list)
-        print("out_label_list: ", out_label_list)
+        logger.info("preds_list: %s", preds_list)
+        logger.info("out_label_list: %s", out_label_list)
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -305,7 +304,6 @@ def main():
         logger.info("*** Classification report ***")
         logger.info("\n%s", report)
 
-
         # Calculating Non-O accuracy
         non_o_true_labels = []
         non_o_pred_labels = []
@@ -317,6 +315,27 @@ def main():
                     non_o_pred_labels.append(pred_label)
 
         non_o_accuracy = accuracy_score(non_o_true_labels, non_o_pred_labels)
+
+        # Flattening the lists for confusion matrix
+        flat_true_labels = [label for sublist in out_label_list for label in sublist]
+        flat_pred_labels = [label for sublist in preds_list for label in sublist]
+
+        # Compute confusion matrix
+        cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=labels)
+
+        # Plot confusion matrix
+        # Call the plot_confusion_matrix function here and pass the computed confusion matrix
+        fig = plot_confusion_matrix(cm, classes=labels, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues)
+
+        # Log metrics and confusion matrix to wandb
+        wandb.log({
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "non_O_accuracy": non_o_accuracy,
+            "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
+        })
 
         return {
             "accuracy": accuracy,  # Changed from "accuracy_score" to "accuracy"
@@ -381,14 +400,16 @@ def main():
         )
 
         predicted_outputs = trainer.predict(test_dataset)
-        print("Predicted outputs predictions:")
-        print(predicted_outputs.predictions)
-        print("Predicted outputs label ids:")
-        print(predicted_outputs.label_ids)
+
+        logger.info("Predicted outputs predictions:")
+        logger.info(predicted_outputs.predictions)
+        logger.info("Predicted outputs label ids:")
+        logger.info(predicted_outputs.label_ids)
         metrics = predicted_outputs.metrics
-        preds_list, out_label_list = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
+        preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
 
         if trainer.is_world_process_zero():
+
             # Write test results to file
             output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
             with open(output_test_results_file, "w") as writer:
@@ -400,15 +421,15 @@ def main():
             output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
             with open(output_test_predictions_file, "w") as writer:
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
-                    token_classification_task.write_predictions_to_file(writer, f, preds_list)
+                    token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
 
             wandb.log({
-                "accuracy": metrics.get("accuracy", None),
-                "precision": metrics.get("precision", None),
-                "recall": metrics.get("recall", None),
-                "f1": metrics.get("f1", None),
-                "non_O_accuracy": metrics.get("non_O_accuracy", None),
+                "Accuracy": metrics.get("accuracy", None) * 100,
+                "Precision": metrics.get("precision", None) * 100,
+                "Recall": metrics.get("recall", None) * 100,
+                "F1": metrics.get("f1", None) * 100,
+                "Non_O_accuracy": metrics.get("non_O_accuracy", None),
             })
             # Custom order
             custom_order = ['B-CROP', 'I-CROP', 'B-PLANT_PART', 'I-PLANT_PART', 'B-PATHOGEN', 'I-PATHOGEN',
@@ -416,8 +437,8 @@ def main():
                             'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
 
             # Flattening the lists for confusion matrix
-            flat_true_labels = [label for sublist in out_label_list for label in sublist]
-            flat_pred_labels = [label for sublist in preds_list for label in sublist]
+            flat_true_labels = [label for sublist in out_label_list_out for label in sublist]
+            flat_pred_labels = [label for sublist in preds_list_out for label in sublist]
 
             # Compute ordered confusion matrix using the custom order
             ordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=custom_order)

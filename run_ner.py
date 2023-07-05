@@ -248,8 +248,6 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
-        logger.info("DEBUG - ALIGN preds_list: %s", preds_list)
-        logger.info("DEBUG - ALIGN out_label_list: %s", out_label_list)
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -402,16 +400,8 @@ def main():
         )
 
         predicted_outputs = trainer.predict(test_dataset)
-        logging.info(f'DEBUGL DOPREDICT - test_dataset: {test_dataset}')
-        logger.info("DEBUGL DOPREDICT - Predicted outputs predictions:")
-        logger.info(predicted_outputs.predictions)
-        logger.info("DEBUGL DOPREDICT - Predicted outputs label ids:")
-        logger.info(predicted_outputs.label_ids)
         metrics = predicted_outputs.metrics
-        logger.info(f'DEBUGL DOPREDICT - metrics: {metrics}')
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
-        logger.info(f'DEBUGL DOPREDICT - preds_list_out: {preds_list_out}')
-        logger.info(f'DEBUGL DOPREDICT - out_label_list_out: {out_label_list_out}')
 
         if trainer.is_world_process_zero():
 
@@ -428,23 +418,32 @@ def main():
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
-
             wandb.log({
-                "Accuracy": metrics.get("accuracy", None),
-                "Precision": metrics.get("precision", None),
-                "Recall": metrics.get("recall", None),
-                "F1": metrics.get("f1", None),
-                "Non_O_accuracy": metrics.get("non_O_accuracy", None),
+                "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(
+                    "test_accuracy") is not None else None,
+                "Precision": metrics.get("test_precision", None) * 100 if metrics.get(
+                    "test_precision") is not None else None,
+                "Recall": metrics.get("test_recall", None) * 100 if metrics.get(
+                    "test_recall") is not None else None,
+                "F1": metrics.get("test_f1", None) * 100 if metrics.get("test_f1") is not None else None,
+                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None) * 100 if metrics.get(
+                    "test_non_O_accuracy") is not None else None,
             })
+
             # Custom order
             custom_order = ['B-CROP', 'I-CROP', 'B-PLANT_PART', 'I-PLANT_PART', 'B-PATHOGEN', 'I-PATHOGEN',
                             'B-DISEASE', 'I-DISEASE', 'B-SYMPTOM', 'I-SYMPTOM', 'B-GPE', 'I-GPE',
                             'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
 
+            logger.info(f'DEBUG Length of out_label_list_out: {len(out_label_list_out)}')
+            logger.info(f'DEBUG Length of preds_list_out: {len(preds_list_out)}')
+
             # Flattening the lists for confusion matrix
             flat_true_labels = [label for sublist in out_label_list_out for label in sublist]
             flat_pred_labels = [label for sublist in preds_list_out for label in sublist]
 
+            logger.info(f'DEBUG Length of flat_true_labels: {len(flat_true_labels)}')
+            logger.info(f'DEBUG Length of flat_pred_labels: {len(flat_pred_labels)}')
             # Compute ordered confusion matrix using the custom order
             ordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=custom_order)
 

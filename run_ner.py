@@ -28,6 +28,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 from torch import nn
+from torch.nn.utils.rnn import pad_sequence
+import torch
 from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
 import wandb
@@ -46,6 +48,7 @@ from transformers import (
     set_seed
 )
 from transformers.trainer_utils import is_main_process
+from torch.utils.data import DataLoader
 
 from dataclasses import asdict
 
@@ -204,6 +207,10 @@ def main():
         cache_dir=model_args.cache_dir,
     )
 
+    # Define the collate_fn function
+    def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        return {key: pad_sequence([dic[key] for dic in batch], batch_first=True) for key in batch[0]}
+
     # Get datasets
     train_dataset = (
         TokenClassificationDataset(
@@ -357,7 +364,8 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=data_collator,
+        # data_collator=data_collator,
+        data_collator=collate_fn,
     )
 
     # Training

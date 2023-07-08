@@ -29,7 +29,9 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 from torch import nn
 from torch.nn.utils.rnn import pad_sequence
+from torch.nn.functional import pad
 import torch
+
 from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
 import wandb
@@ -207,9 +209,18 @@ def main():
         cache_dir=model_args.cache_dir,
     )
 
-    # Define the collate_fn function
+    # # Define the collate_fn function
+    # def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+    #     return {key: pad_sequence([dic[key] for dic in batch], batch_first=True) for key in batch[0]}
+
     def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
-        return {key: pad_sequence([dic[key] for dic in batch], batch_first=True) for key in batch[0]}
+        max_length = data_args.max_seq_length  # replace this with the actual max length
+        padded_batch = {}
+        for key in batch[0]:
+            sequences = [dic[key] for dic in batch]
+            padded_sequences = [pad(seq, pad=(0, max_length - len(seq))) for seq in sequences]
+            padded_batch[key] = torch.stack(padded_sequences)
+        return padded_batch
 
     # Get datasets
     train_dataset = (

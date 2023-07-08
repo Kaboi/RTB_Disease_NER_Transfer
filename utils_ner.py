@@ -20,7 +20,8 @@ import logging
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
+
 
 from filelock import FileLock
 

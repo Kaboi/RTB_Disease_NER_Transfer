@@ -276,8 +276,10 @@ if is_torch_available():
             return len(self.features)
 
         def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-            return {key: torch.tensor(value) for key, value in self.features[i].items()}
-
+            item = self.features[i]
+            if 'label_ids' in item:
+                item['labels'] = item.pop('label_ids')
+            return {key: torch.tensor(value) for key, value in item.items()}
 
 if is_tf_available():
     import tensorflow as tf

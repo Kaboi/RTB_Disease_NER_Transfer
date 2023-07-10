@@ -248,14 +248,6 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
-            # Print the label_ids, preds, out_label_list, and preds_list for the first batch only
-            if i == 0:
-                logger.info(f"Batch {i}:")
-                logger.info(f"label_ids: {label_ids[i]}")  # print first 5 elements
-                logger.info(f"preds: {preds[i]}")  # print first 5 elements
-                logger.info(f"out_label_list: {out_label_list[i]}")  # print first 5 elements
-                logger.info(f"preds_list: {preds_list[i]}")  # print first 5 elements
-
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -295,9 +287,7 @@ def main():
         return fig  # Return the figure object
 
     def compute_metrics(p: EvalPrediction) -> Dict:
-        logger.info(f"Calling aligned predictions from compute_metrics...")
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
-        logger.info(f"preds_list_out - compute metrics: {preds_list[:5]}")
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')
@@ -413,10 +403,8 @@ def main():
 
         predicted_outputs = trainer.predict(test_dataset)
         metrics = predicted_outputs.metrics
-        logger.info(f"Calling aligned predictions from training_args.do_predict...")
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
                                                                predicted_outputs.label_ids)
-        logger.info(f"preds_list_out - training_args BEFORE world zero: {preds_list_out[:5]}")
 
         if trainer.is_world_process_zero():
 
@@ -433,6 +421,8 @@ def main():
             with open(output_test_predictions_file, "w") as writer:
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
+
+            logger.info(f"preds_list_out - training_args AFTER SAVE PREDICTIONS: {preds_list_out[:5]}")
 
             wandb.log({
                 "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(

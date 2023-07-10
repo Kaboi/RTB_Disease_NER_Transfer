@@ -251,10 +251,10 @@ def main():
             # Print the label_ids, preds, out_label_list, and preds_list for the first batch only
             if i == 0:
                 logger.info(f"Batch {i}:")
-                logger.info(f"label_ids: {label_ids[i][:5]}")  # print first 5 elements
-                logger.info(f"preds: {preds[i][:5]}")  # print first 5 elements
-                logger.info(f"out_label_list: {out_label_list[i][:5]}")  # print first 5 elements
-                logger.info(f"preds_list: {preds_list[i][:5]}")  # print first 5 elements
+                logger.info(f"label_ids: {label_ids[i]}")  # print first 5 elements
+                logger.info(f"preds: {preds[i]}")  # print first 5 elements
+                logger.info(f"out_label_list: {out_label_list[i]}")  # print first 5 elements
+                logger.info(f"preds_list: {preds_list[i]}")  # print first 5 elements
 
         return preds_list, out_label_list
 
@@ -412,7 +412,7 @@ def main():
 
         predicted_outputs = trainer.predict(test_dataset)
         metrics = predicted_outputs.metrics
-        logger.info(f"Calling aligned predictions from compute_metrics...")
+        logger.info(f"Calling aligned predictions from training_args.do_predict...")
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
                                                                predicted_outputs.label_ids)
 

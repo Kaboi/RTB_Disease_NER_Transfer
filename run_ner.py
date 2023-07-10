@@ -326,21 +326,20 @@ def main():
         # fig = plot_confusion_matrix(cm, classes=labels, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues)
 
         # Log metrics and confusion matrix to wandb
-        wandb.log({
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-            "non_O_accuracy": non_o_accuracy  # ,
-            # "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
-        })
-
+        # wandb.log({
+        #     "accuracy": accuracy,
+        #     "precision": precision,
+        #     "recall": recall,
+        #     "f1": f1,
+        #     "non_O_accuracy": non_o_accuracy  # ,
+        #     # "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
+        # })
         return {
-            "accuracy": accuracy,  # Changed from "accuracy_score" to "accuracy"
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-            "non_O_accuracy": non_o_accuracy
+            "accuracy": accuracy * 100 if accuracy is not None else None,
+            "precision": precision * 100 if precision is not None else None,
+            "recall": recall * 100 if recall is not None else None,
+            "f1": f1 * 100 if f1 is not None else None,
+            "non_O_accuracy": non_o_accuracy * 100 if non_o_accuracy is not None else None,
         }
 
     # Data collator

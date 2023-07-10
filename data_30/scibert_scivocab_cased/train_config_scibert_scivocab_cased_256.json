@@ -4,7 +4,7 @@
     "data_dir": "./data_30/scibert_scivocab_uncased/256",
     "output_dir": "./output/scibert_scivocab_uncased/256",
     "max_seq_length": 512,
-    "num_train_epochs": 3,
+    "num_train_epochs": 10,
     "per_device_train_batch_size": 32,
     "save_steps": 500,
     "logging_steps": 500,

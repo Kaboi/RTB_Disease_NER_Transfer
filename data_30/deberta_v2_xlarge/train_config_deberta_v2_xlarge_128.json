@@ -4,7 +4,7 @@
     "data_dir": "./data_30/deberta_v2_xlarge/128",
     "output_dir": "./output/deberta_v2_xlarge/128",
     "max_seq_length": 256,
-    "num_train_epochs": 3,
+    "num_train_epochs": 10,
     "per_device_train_batch_size": 32,
     "save_steps": 500,
     "logging_steps": 500,

@@ -297,7 +297,7 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         logger.info(f"Calling aligned predictions from compute_metrics...")
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
-        logger.info(f"preds_list_out - compute metrics: {preds_list}")
+        logger.info(f"preds_list_out - compute metrics: {preds_list[:5]}")
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')
@@ -416,10 +416,11 @@ def main():
         logger.info(f"Calling aligned predictions from training_args.do_predict...")
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
                                                                predicted_outputs.label_ids)
-        logger.info(f"preds_list_out - training_args: {preds_list_out}")
+        logger.info(f"preds_list_out - training_args BEFORE world zero: {preds_list_out[:5]}")
 
         if trainer.is_world_process_zero():
 
+            logger.info(f"preds_list_out - training_args AFTER world zero: {preds_list_out[:5]}")
             # Write test results to file
             output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
             with open(output_test_results_file, "w") as writer:

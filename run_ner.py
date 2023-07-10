@@ -289,6 +289,10 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
+        logger.info(f'DEBUG labels_ids in comptuer metrics sample: {p.label_ids[:1]}')
+        logger.info(f'DEBUG labels_ids in comptuer metrics sample: {p.label_ids}')
+        logger.info(f'DEBUG predictions in comptuer metrics sample: {p.predictions[:1]}')
+        logger.info(f'DEBUG predictions in comptuer metrics sample: {p.predictions}')
         logger.info(f'DEBUG preds_list in computer_metrics sample: {preds_list[:5]}')
         logger.info(f'DEBUG out_label_list_out sample: {out_label_list[:5]}')
 
@@ -406,7 +410,13 @@ def main():
 
         predicted_outputs = trainer.predict(test_dataset)
         metrics = predicted_outputs.metrics
-        preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions, predicted_outputs.label_ids)
+        preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
+                                                               predicted_outputs.label_ids)
+
+        logger.info(f'DEBUG labels_ids in main do predict sample: {predicted_outputs.label_ids[:1]}')
+        logger.info(f'DEBUG labels_ids in main do predict sample: {predicted_outputs.label_ids}')
+        logger.info(f'DEBUG predictions in main do predict sample: {predicted_outputs.predictions[:1]}')
+        logger.info(f'DEBUG predictions iin main do predict sample: {predicted_outputs.predictions}')
 
         if trainer.is_world_process_zero():
 

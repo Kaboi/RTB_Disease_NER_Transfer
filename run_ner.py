@@ -289,7 +289,8 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
 
-        logger.info(f'DEBUG preds_list in computer_metrics sample: {preds_list_out[:5]}')
+        logger.info(f'DEBUG preds_list in computer_metrics sample: {preds_list[:5]}')
+        logger.info(f'DEBUG out_label_list_out sample: {out_label_list[:5]}')
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')
@@ -442,6 +443,7 @@ def main():
             logger.info(f'DEBUG Length of out_label_list_out: {len(out_label_list_out)}')
             logger.info(f'DEBUG Length of preds_list_out: {len(preds_list_out)}')
             logger.info(f'DEBUG preds_list_out sample: {preds_list_out[:5]}')
+            logger.info(f'DEBUG out_label_list_out sample: {out_label_list_out[:5]}')
 
             # Flattening the lists for confusion matrix
             flat_true_labels = [label for sublist in out_label_list_out for label in sublist]

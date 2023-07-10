@@ -445,15 +445,11 @@ def main():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
 
-            logger.info(f"preds_list_out - training_args BEFORE SAVE PREDICTIONS: {preds_list_out[:5]}")
-
             # Save predictions
             output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
             with open(output_test_predictions_file, "w") as writer:
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
-
-            logger.info(f"preds_list_out - training_args AFTER SAVE PREDICTIONS: {preds_list_out[:5]}")
 
             wandb.log({
                 "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(

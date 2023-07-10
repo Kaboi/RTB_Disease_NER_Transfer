@@ -20,7 +20,8 @@ import logging
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
+
 
 from filelock import FileLock
 
@@ -196,11 +197,13 @@ class TokenClassificationTask:
             if "token_type_ids" not in tokenizer.model_input_names:
                 segment_ids = None
 
-            features.append(
-                InputFeatures(
-                    input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids, label_ids=label_ids
-                )
-            )
+            features_dict = {
+                'input_ids': input_ids,
+                'attention_mask': input_mask,
+                'token_type_ids': segment_ids,
+                'label_ids': label_ids
+            }
+            features.append(features_dict)
 
         return features
 
@@ -272,9 +275,11 @@ if is_torch_available():
         def __len__(self):
             return len(self.features)
 
-        def __getitem__(self, i) -> InputFeatures:
-            return self.features[i]
-
+        def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+            item = self.features[i]
+            if 'label_ids' in item:
+                item['labels'] = item.pop('label_ids')
+            return {key: torch.tensor(value) for key, value in item.items()}
 
 if is_tf_available():
     import tensorflow as tf

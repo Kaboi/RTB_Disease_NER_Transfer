@@ -28,6 +28,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 from torch import nn
+from torch.nn.utils.rnn import pad_sequence
+from torch.nn.functional import pad
+import torch
+
 from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
 import wandb
@@ -46,6 +50,7 @@ from transformers import (
     set_seed
 )
 from transformers.trainer_utils import is_main_process
+from torch.utils.data import DataLoader
 
 from dataclasses import asdict
 
@@ -350,6 +355,17 @@ def main():
         padding=True,
     ) if training_args.fp16 else None
 
+    # Define a custom data collator
+    def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        max_length = data_args.max_seq_length  # replace this with the actual max length
+        padded_batch = {}
+        for key in batch[0]:
+            sequences = [dic[key] for dic in batch]
+            padded_sequences = [pad(seq, pad=(0, max_length - len(seq))) for seq in sequences]
+            padded_batch[key] = torch.stack(padded_sequences)
+        return padded_batch
+
+
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
@@ -357,7 +373,8 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=data_collator,
+        # data_collator=data_collator,
+        data_collator=collate_fn,
     )
 
     # Training

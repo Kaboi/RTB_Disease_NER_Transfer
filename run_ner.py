@@ -248,6 +248,14 @@ def main():
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
+            # Print the label_ids, preds, out_label_list, and preds_list for the first batch only
+            if i == 0:
+                logger.info(f"Batch {i}:")
+                logger.info(f"label_ids: {label_ids[i][:5]}")  # print first 5 elements
+                logger.info(f"preds: {preds[i][:5]}")  # print first 5 elements
+                logger.info(f"out_label_list: {out_label_list[i][:5]}")  # print first 5 elements
+                logger.info(f"preds_list: {preds_list[i][:5]}")  # print first 5 elements
+
         return preds_list, out_label_list
 
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -287,12 +295,8 @@ def main():
         return fig  # Return the figure object
 
     def compute_metrics(p: EvalPrediction) -> Dict:
+        logger.info(f"Calling aligned predictions from compute_metrics...")
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
-
-        logger.info(f'DEBUG labels_ids in comptuer metrics sample: {p.label_ids[:1]}')
-        logger.info(f'DEBUG predictions in comptuer metrics sample: {p.predictions[:1]}')
-        logger.info(f'DEBUG preds_list in computer_metrics sample: {preds_list[:5]}')
-        logger.info(f'DEBUG out_label_list_out sample: {out_label_list[:5]}')
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')
@@ -408,11 +412,10 @@ def main():
 
         predicted_outputs = trainer.predict(test_dataset)
         metrics = predicted_outputs.metrics
+        logger.info(f"Calling aligned predictions from compute_metrics...")
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
                                                                predicted_outputs.label_ids)
 
-        logger.info(f'DEBUG labels_ids in main do predict sample: {predicted_outputs.label_ids[:1]}')
-        logger.info(f'DEBUG predictions in main do predict sample: {predicted_outputs.predictions[:1]}')
         if trainer.is_world_process_zero():
 
             # Write test results to file
@@ -445,17 +448,10 @@ def main():
                             'B-DISEASE', 'I-DISEASE', 'B-SYMPTOM', 'I-SYMPTOM', 'B-GPE', 'I-GPE',
                             'B-LOC', 'I-LOC', 'B-DATE', 'I-DATE', 'B-ORG', 'I-ORG', 'O']
 
-            logger.info(f'DEBUG Length of out_label_list_out: {len(out_label_list_out)}')
-            logger.info(f'DEBUG Length of preds_list_out: {len(preds_list_out)}')
-            logger.info(f'DEBUG preds_list_out sample: {preds_list_out[:5]}')
-            logger.info(f'DEBUG out_label_list_out sample: {out_label_list_out[:5]}')
-
             # Flattening the lists for confusion matrix
             flat_true_labels = [label for sublist in out_label_list_out for label in sublist]
             flat_pred_labels = [label for sublist in preds_list_out for label in sublist]
 
-            logger.info(f'DEBUG Length of flat_true_labels: {len(flat_true_labels)}')
-            logger.info(f'DEBUG Length of flat_pred_labels: {len(flat_pred_labels)}')
             # Compute ordered confusion matrix using the custom order
             ordered_cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=custom_order)
 

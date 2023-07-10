@@ -408,34 +408,6 @@ def main():
 
         if trainer.is_world_process_zero():
 
-            logger.info(f"preds_list_out - training_args AFTER world zero: {preds_list_out[:5]}")
-            # Write test results to file
-            output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
-            with open(output_test_results_file, "w") as writer:
-                for key, value in metrics.items():
-                    logger.info("  %s = %s", key, value)
-                    writer.write("%s = %s\n" % (key, value))
-
-            # Save predictions
-            output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
-            with open(output_test_predictions_file, "w") as writer:
-                with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
-                    token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
-
-            logger.info(f"preds_list_out - training_args AFTER SAVE PREDICTIONS: {preds_list_out[:5]}")
-
-            wandb.log({
-                "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(
-                    "test_accuracy") is not None else None,
-                "Precision": metrics.get("test_precision", None) * 100 if metrics.get(
-                    "test_precision") is not None else None,
-                "Recall": metrics.get("test_recall", None) * 100 if metrics.get(
-                    "test_recall") is not None else None,
-                "F1": metrics.get("test_f1", None) * 100 if metrics.get("test_f1") is not None else None,
-                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None) * 100 if metrics.get(
-                    "test_non_O_accuracy") is not None else None,
-            })
-
             # Custom order
             custom_order = ['B-CROP', 'I-CROP', 'B-PLANT_PART', 'I-PLANT_PART', 'B-PATHOGEN', 'I-PATHOGEN',
                             'B-DISEASE', 'I-DISEASE', 'B-SYMPTOM', 'I-SYMPTOM', 'B-GPE', 'I-GPE',
@@ -465,6 +437,35 @@ def main():
             wandb.log({
                 "ordered_confusion_matrix": [wandb.Image(fig1, caption="Ordered Confusion Matrix")],
                 "unordered_confusion_matrix": [wandb.Image(fig2, caption="Unordered Confusion Matrix")]
+            })
+
+            # Write test results to file
+            output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
+            with open(output_test_results_file, "w") as writer:
+                for key, value in metrics.items():
+                    logger.info("  %s = %s", key, value)
+                    writer.write("%s = %s\n" % (key, value))
+
+            logger.info(f"preds_list_out - training_args BEFORE SAVE PREDICTIONS: {preds_list_out[:5]}")
+
+            # Save predictions
+            output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
+            with open(output_test_predictions_file, "w") as writer:
+                with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
+                    token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
+
+            logger.info(f"preds_list_out - training_args AFTER SAVE PREDICTIONS: {preds_list_out[:5]}")
+
+            wandb.log({
+                "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(
+                    "test_accuracy") is not None else None,
+                "Precision": metrics.get("test_precision", None) * 100 if metrics.get(
+                    "test_precision") is not None else None,
+                "Recall": metrics.get("test_recall", None) * 100 if metrics.get(
+                    "test_recall") is not None else None,
+                "F1": metrics.get("test_f1", None) * 100 if metrics.get("test_f1") is not None else None,
+                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None) * 100 if metrics.get(
+                    "test_non_O_accuracy") is not None else None,
             })
 
     return results

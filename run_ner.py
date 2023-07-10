@@ -297,7 +297,7 @@ def main():
     def compute_metrics(p: EvalPrediction) -> Dict:
         logger.info(f"Calling aligned predictions from compute_metrics...")
         preds_list, out_label_list = align_predictions(p.predictions, p.label_ids)
-        logger.info(f"preds_list_out - compute metrics: {preds_list_out}")
+        logger.info(f"preds_list_out - compute metrics: {preds_list}")
 
         accuracy = accuracy_score(out_label_list, preds_list)
         precision = precision_score(out_label_list, preds_list, average='micro')

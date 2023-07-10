@@ -452,15 +452,11 @@ def main():
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
             wandb.log({
-                "Accuracy": metrics.get("test_accuracy", None) * 100 if metrics.get(
-                    "test_accuracy") is not None else None,
-                "Precision": metrics.get("test_precision", None) * 100 if metrics.get(
-                    "test_precision") is not None else None,
-                "Recall": metrics.get("test_recall", None) * 100 if metrics.get(
-                    "test_recall") is not None else None,
-                "F1": metrics.get("test_f1", None) * 100 if metrics.get("test_f1") is not None else None,
-                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None) * 100 if metrics.get(
-                    "test_non_O_accuracy") is not None else None,
+                "Accuracy": metrics.get("test_accuracy", None),
+                "Precision": metrics.get("test_precision", None),
+                "Recall": metrics.get("test_recall", None),
+                "F1": metrics.get("test_f1", None),
+                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None)
             })
 
     return results

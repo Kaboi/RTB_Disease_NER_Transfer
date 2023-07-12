@@ -250,7 +250,7 @@ def main():
 
         return preds_list, out_label_list
 
-    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion Matrix', cmap=plt.cm.Blues):
         """
         This function prints and plots the confusion matrix.
         Normalization can be applied by setting `normalize=True`.
@@ -444,6 +444,7 @@ def main():
                 for key, value in metrics.items():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
+                    wandb.run.summary[key] = value  # Log the metric to wandb.run.summary
 
             # Save predictions
             output_test_predictions_file = os.path.join(training_args.output_dir, "test_predictions.txt")
@@ -452,6 +453,14 @@ def main():
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
             wandb.log({
+                "Accuracy": metrics.get("test_accuracy", None),
+                "Precision": metrics.get("test_precision", None),
+                "Recall": metrics.get("test_recall", None),
+                "F1": metrics.get("test_f1", None),
+                "Non_O_accuracy": metrics.get("test_non_O_accuracy", None)
+            })
+
+            wandb.run.log({
                 "Accuracy": metrics.get("test_accuracy", None),
                 "Precision": metrics.get("test_precision", None),
                 "Recall": metrics.get("test_recall", None),

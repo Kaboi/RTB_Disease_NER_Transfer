@@ -460,14 +460,6 @@ def main():
                 "Non_O_accuracy": metrics.get("test_non_O_accuracy", None)
             })
 
-            wandb.run.log({
-                "Accuracy": metrics.get("test_accuracy", None),
-                "Precision": metrics.get("test_precision", None),
-                "Recall": metrics.get("test_recall", None),
-                "F1": metrics.get("test_f1", None),
-                "Non_O_Accuracy": metrics.get("test_non_O_accuracy", None)
-            })
-
     return results
 
 

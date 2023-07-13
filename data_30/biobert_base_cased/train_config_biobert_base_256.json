@@ -1,0 +1,18 @@
+{
+    "model_name_or_path": "dmis-lab/biobert-base-cased-v1.2",
+    "labels": "./data_30/labels.txt",
+    "data_dir": "./data_30/biobert_base_cased/256",
+    "output_dir": "./output/biobert_base_cased/256",
+    "max_seq_length": 512,
+    "num_train_epochs": 10,
+    "per_device_train_batch_size": 32,
+    "save_steps": 500,
+    "logging_steps": 500,
+    "seed": 3,
+    "report_to": "wandb",
+    "do_train": true,
+    "do_eval": true,
+    "do_predict": true,
+    "overwrite_output_dir": true,
+    "overwrite_cache": true
+}

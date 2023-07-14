@@ -19,12 +19,15 @@ def train():
     # config is a variable that holds and saves hyperparameters and inputs
     config = wandb.config
 
-    # Call your training script with parameters as environment variables
-    os.system(
-        f"num_train_epochs={config['num_train_epochs']} "
-        f"per_device_train_batch_size={config['per_device_train_batch_size']} "
-        f"learning_rate={config['learning_rate']} max_seq_length={config['max_seq_length']} "
-        f"config_file={config['config_file']} python run_ner_sweep.py")
+    # Set environment variables
+    os.environ['num_train_epochs'] = str(config['num_train_epochs'])
+    os.environ['per_device_train_batch_size'] = str(config['per_device_train_batch_size'])
+    os.environ['learning_rate'] = str(config['learning_rate'])
+    os.environ['max_seq_length'] = str(config['max_seq_length'])
+    os.environ['config_file'] = config['config_file']
+
+    # Call your training script
+    os.system("python run_ner.py")
 
 
 if __name__ == "__main__":

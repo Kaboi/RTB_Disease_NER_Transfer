@@ -32,7 +32,8 @@ from utils_ner import Split, TokenClassificationDataset, TokenClassificationTask
 import datetime
 import wandb
 import itertools
-
+from transformers.trainer_utils import is_main_process
+from dataclasses import asdict
 import transformers
 from transformers import (
     AutoConfig,
@@ -45,10 +46,6 @@ from transformers import (
     TrainingArguments,
     set_seed
 )
-from transformers.trainer_utils import is_main_process
-
-from dataclasses import asdict
-
 
 logger = logging.getLogger(__name__)
 
@@ -314,26 +311,6 @@ def main():
 
         non_o_accuracy = accuracy_score(non_o_true_labels, non_o_pred_labels)
 
-        # # Flattening the lists for confusion matrix
-        # flat_true_labels = [label for sublist in out_label_list for label in sublist]
-        # flat_pred_labels = [label for sublist in preds_list for label in sublist]
-        #
-        # # Compute confusion matrix
-        # cm = confusion_matrix(flat_true_labels, flat_pred_labels, labels=labels)
-        #
-        # # Plot confusion matrix
-        # # Call the plot_confusion_matrix function here and pass the computed confusion matrix
-        # fig = plot_confusion_matrix(cm, classes=labels, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues)
-
-        # Log metrics and confusion matrix to wandb
-        # wandb.log({
-        #     "accuracy": accuracy,
-        #     "precision": precision,
-        #     "recall": recall,
-        #     "f1": f1,
-        #     "non_O_accuracy": non_o_accuracy  # ,
-        #     # "confusion_matrix": [wandb.Image(fig, caption="Confusion Matrix")]
-        # })
         return {
             "accuracy": accuracy * 100 if accuracy is not None else None,
             "precision": precision * 100 if precision is not None else None,

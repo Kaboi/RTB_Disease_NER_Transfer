@@ -1,0 +1,18 @@
+{
+    "model_name_or_path": "microsoft/deberta-v2-xlarge",
+    "labels": "./data_30/labels.txt",
+    "data_dir": "./data_30/deberta_v2_xlarge/256",
+    "output_dir": "./output/deberta_v2_xlarge/256",
+    "max_seq_length": 512,
+    "num_train_epochs": 10,
+    "per_device_train_batch_size": 16,
+    "save_steps": 500,
+    "logging_steps": 500,
+    "seed": 3,
+    "report_to": "wandb",
+    "do_train": true,
+    "do_eval": true,
+    "do_predict": true,
+    "overwrite_output_dir": true,
+    "overwrite_cache": true
+}

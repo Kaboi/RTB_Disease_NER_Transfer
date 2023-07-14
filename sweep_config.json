@@ -1,7 +1,7 @@
 {
     "method": "bayes",
     "metric": {
-        "name": "f1",
+        "name": "eval/f1",
         "goal": "maximize"
     },
     "parameters": {

@@ -150,10 +150,10 @@ def main():
     )
 
     # log training to wandb
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    run_name = f"{model_args.model_name_or_path}-{timestamp}"
+    # timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    # run_name = f"{model_args.model_name_or_path}-{timestamp}"
 
-    wandb_config = {**asdict(model_args), **asdict(data_args), **asdict(training_args)}
+    # wandb_config = {**asdict(model_args), **asdict(data_args), **asdict(training_args)}
 
     # wandb.init(project='RTB-NER-Transfer-Learning-Evaluation-Sweep', name=run_name, tags=['BERT', 'train'],
     #            config=wandb_config)

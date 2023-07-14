@@ -10,7 +10,7 @@ def train():
         "per_device_train_batch_size": 32,
         "learning_rate": 5e-5,
         "max_seq_length": 128,
-        "config_file": "./configs/bert_base_uncased.json",  # or any default config file path
+        "config_file": "./configs/train_config_deberta_v2_xlarge_128.json",  # or any default config file path
     }
 
     # Initialize a new wandb run
@@ -27,7 +27,7 @@ def train():
     os.environ['config_file'] = config['config_file']
 
     # Call your training script
-    os.system("python run_ner.py")
+    os.system("python run_ner_sweep.py")
 
 
 if __name__ == "__main__":

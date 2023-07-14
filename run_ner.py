@@ -353,6 +353,8 @@ def main():
         logger.info("*** Evaluate ***")
 
         result = trainer.evaluate()
+        # Logging the metrics
+        wandb.log(result)
 
         output_eval_file = os.path.join(training_args.output_dir, "eval_results.txt")
         if trainer.is_world_process_zero():

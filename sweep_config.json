@@ -1,7 +1,7 @@
 {
     "method": "bayes",
     "metric": {
-        "name": "f1",
+        "name": "test_non_O_accuracy",
         "goal": "maximize"
     },
     "parameters": {

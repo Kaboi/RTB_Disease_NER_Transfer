@@ -432,7 +432,7 @@ def main():
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
-            wandb.run.summary({
+            wandb.log({
                 "Accuracy": metrics.get("test_accuracy", None),
                 "Precision": metrics.get("test_precision", None),
                 "Recall": metrics.get("test_recall", None),

@@ -1,6 +1,36 @@
-Input file: ciat_ner_diseases.jsonl
-Input file: ciat_ner_news.jsonl
-Output file: ciat_ner_diseases-output-iob-tags-30_validate.txt
-Total number of annotation documents: 69
-Total number of tokens: 33299
-Longest sequence of tokens: 71
+Input file: articles.jsonl
+Output file: articles-output-iob-tags-88_validate.txt
+Total number of annotation documents: 45
+Total number of tokens: 15437
+Longest sequence of tokens: 124
+Label Counts:
+O: 13337
+B-GPE: 140
+B-LOC: 48
+I-LOC: 38
+B-CROP: 259
+I-CROP: 84
+B-PLANT_PART: 114
+I-GPE: 40
+B-SYMPTOM: 48
+I-SYMPTOM: 139
+B-DISEASE: 117
+I-DISEASE: 163
+B-PATHOGEN: 243
+I-PATHOGEN: 299
+B-DATE: 143
+I-DATE: 127
+B-ORG: 35
+I-ORG: 59
+I-PLANT_PART: 4
+
+Combined Label Counts:
+GPE: 140
+LOC: 48
+CROP: 259
+PLANT_PART: 114
+SYMPTOM: 48
+DISEASE: 117
+PATHOGEN: 243
+DATE: 143
+ORG: 35

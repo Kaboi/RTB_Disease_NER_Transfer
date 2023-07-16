@@ -19,10 +19,7 @@
             "values": [128, 256, 512]
         },
         "config_file": {
-            "values": ["./configs/train_config_deberta_v2_xlarge_128.json",
-                "./configs/train_config_deberta_v3_large_128.json",
-                "./configs/train_config_electra_large_128.json",
-                "./configs/train_config_PubMedBert_base_uncased_128.json",
+            "values": [
                 "./configs/train_config_sciberta_full_128.json"
             ]
         }

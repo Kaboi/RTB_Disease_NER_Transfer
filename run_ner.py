@@ -123,7 +123,7 @@ def main():
 
     wandb_config = {**asdict(model_args), **asdict(data_args), **asdict(training_args)}
 
-    wandb.init(project='RTB-NER-Transfer-Learning-Evaluation', name=run_name, tags=['BERT', 'train'],
+    wandb.init(project='RTB-NER-Transfer-Learning-Final', name=run_name, tags=['BERT', 'train'],
                config=wandb_config)
 
     if (
@@ -363,6 +363,7 @@ def main():
                 for key, value in result.items():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
+                    wandb.log({key: value})
 
             results.update(result)
 

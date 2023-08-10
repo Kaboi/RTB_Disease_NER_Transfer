@@ -6,7 +6,8 @@ https://github.com/huggingface/transformers/tree/main/examples/legacy
 
 ## Data Format
 labels available at ./data/labels.txt
-config files in specific model folders e.g. ./data_xyz/model_xyz
+
+Config files in specific model folders e.g. ./data_xyz/model_xyz
 Data files with max 128 or 256 tokens after tokenization are in ./data_xyz/model_xyz/128 and ./data_xyz/model_xyz/256
 
 ## Configuration

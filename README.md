@@ -1,7 +1,7 @@
 # NER Using Transfer Learning for RTB Crops
 
 ## Original Code
-The original code is build from the legacy examples from the HuggingFace
+The code uses the  HuggingFace legacy example below as the starting point
 https://github.com/huggingface/transformers/tree/main/examples/legacy
 
 ## Data Format

@@ -1,6 +1,0 @@
-Input file: ciat_ner_diseases.jsonl
-Input file: ciat_ner_news.jsonl
-Output file: ciat_ner_diseases-output-iob-tags-full_doc_test.txt
-Total number of annotation documents: 68
-Total number of tokens: 32226
-Longest sequence of tokens: 1928

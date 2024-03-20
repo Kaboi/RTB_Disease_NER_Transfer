@@ -117,15 +117,17 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    # log training to wandb
+    # get the correct timestamp and runtime
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     run_name = f"{model_args.model_name_or_path}-{timestamp}"
 
+    # log training to wandb
     wandb_config = {**asdict(model_args), **asdict(data_args), **asdict(training_args)}
 
     wandb.init(project='RTB-NER-Transfer-Learning-Final', name=run_name, tags=['BERT', 'train'],
                config=wandb_config)
 
+    # check existance of output directories and check overwriting flag
     if (
         os.path.exists(training_args.output_dir)
         and os.listdir(training_args.output_dir)
@@ -357,6 +359,8 @@ def main():
         wandb.log(result)
 
         output_eval_file = os.path.join(training_args.output_dir, "eval_results.txt")
+
+        # Always check that we are doing this from process zero
         if trainer.is_world_process_zero():
             with open(output_eval_file, "w") as writer:
                 logger.info("***** Eval results *****")
@@ -368,6 +372,7 @@ def main():
             results.update(result)
 
     # Predict
+    # do the predictions after training make sure that we check for the right outputs
     if training_args.do_predict:
         test_dataset = TokenClassificationDataset(
             token_classification_task=token_classification_task,
@@ -384,7 +389,8 @@ def main():
         metrics = predicted_outputs.metrics
         preds_list_out, out_label_list_out = align_predictions(predicted_outputs.predictions,
                                                                predicted_outputs.label_ids)
-
+        # Check if the process is the main process before trying to put the information together
+        # This is to ensure we can delegate the work to many gpus
         if trainer.is_world_process_zero():
 
             # Custom order
@@ -432,6 +438,7 @@ def main():
                 with open(os.path.join(data_args.data_dir, "test.txt"), "r") as f:
                     token_classification_task.write_predictions_to_file(writer, f, preds_list_out)
 
+            # After completing make sure we log the metrics for the predictions back to WandB
             wandb.log({
                 "Accuracy": metrics.get("test_accuracy", None),
                 "Precision": metrics.get("test_precision", None),
